@@ -5,22 +5,30 @@ import numpy as np
 from constants import Line, Point
 
 
-def visualize(width: int, height: int, points: list[Point], lines: list[Line], filtered_points: list[set[int]]) -> None:
+def visualize(width: int, height: int, points: list[Point], lines: list[Line], filtered_points: list[set[int]], distance: float) -> None:
     img = 255 * np.ones((height, width, 3), np.uint8)
 
     # Show all points
     for point in points:
         x, y = point
-        cv.circle(img, (round(x), round(y)), 2, (0, 0, 0), -1)
+        cv.circle(img, (round(x), round(y)), 3, (0, 0, 0), -1)
 
     # Show lines and points that are close to the lines.
     for line, points_on_line in zip(lines, filtered_points):
-        random_color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        random_color = (random.randint(0, 200), random.randint(0, 200), random.randint(0, 200))
         a, b, c = line
-        cv.line(img, (0, int(-c / b)), (width, int((-c - a * width) / b)), random_color, 2)
+        cv.line(img, (0, int(-c / b)), (width, int((-c - a * width) / b)), random_color, 3)
         for idx in points_on_line:
             x, y = points[idx]
-            cv.circle(img, (round(x), round(y)), 2, random_color, -1)
+            cv.circle(img, (round(x), round(y)), 3, random_color, -1)
+        
+        # now shift the line by distance
+        # So that it will be parallel to the original line
+        new_c = c + distance * (a**2 + b**2)**0.5
+        cv.line(img, (0, int(-new_c / b)), (width, int((-new_c - a * width) / b)), random_color, 1)
+        # Now to the other side
+        new_c = c - distance * (a**2 + b**2)**0.5
+        cv.line(img, (0, int(-new_c / b)), (width, int((-new_c - a * width) / b)), random_color, 1)
 
     cv.imshow("img", img)
     cv.waitKey(0)
@@ -32,6 +40,12 @@ def calculate_line_that_passes_through_two_points(point1: Point, point2: Point) 
     c = -a * point1[0] - b * point1[1]
     assert abs(a * point2[0] + b * point2[1] + c) < 1e-6
     return Line(a, b, c)
+
+
+def calculate_distance_between_point_and_line(point: Point, line: Line) -> float:
+    x, y = point
+    a, b, c = line
+    return abs(a * x + b * y + c) / (a**2 + b**2)**0.5
 
 
 def generate_random_point(min_x: float, max_x: float, min_y: float, max_y: float) -> Point:

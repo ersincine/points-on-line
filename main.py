@@ -51,14 +51,16 @@ def generate_random_problem_with_vanishing_point(
 
 def main() -> None:
     width, height = 1000, 500
+    distance = 20
+    line_count = 20
 
-    points, lines, distance = generate_random_problem(width, height)
+    points, lines, distance = generate_random_problem(width, height, distance=distance, line_count=line_count)
     filtered_points = naive_solution.filter_points(points, lines, distance)
-    visualize(width, height, points, lines, filtered_points)
+    visualize(width, height, points, lines, filtered_points, distance)
 
-    points, lines, distance = generate_random_problem_with_vanishing_point(width, height)
+    points, lines, distance = generate_random_problem_with_vanishing_point(width, height, distance=distance, line_count=line_count)
     filtered_points = naive_solution.filter_points(points, lines, distance)
-    visualize(width, height, points, lines, filtered_points)
+    visualize(width, height, points, lines, filtered_points, distance)
 
 
 if __name__ == "__main__":
